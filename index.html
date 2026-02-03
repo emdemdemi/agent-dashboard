@@ -152,15 +152,9 @@ body {
             <section class="panel">
                 <div class="panel-header"><h2>💰 Today's Usage</h2></div>
                 <div class="panel-body">
-                    <div class="token-section">
-                        <div class="token-box">
-                            <div class="token-value" id="dailyTokens">--</div>
-                            <div class="token-label">Tokens Used</div>
-                        </div>
-                        <div class="token-box">
-                            <div class="token-value" id="dailyCost">$--</div>
-                            <div class="token-label">Est. Cost</div>
-                        </div>
+                    <div class="token-box" style="grid-column: 1 / -1;">
+                        <div class="token-value" id="dailyTokens">--</div>
+                        <div class="token-label">Tokens Used Today</div>
                     </div>
                     <div class="token-bar-wrap">
                         <div class="token-bar"><div class="token-bar-inner" id="tokenBar" style="width:0%"></div></div>
@@ -311,7 +305,6 @@ class Dashboard {
         const percent = Math.min((daily / limit) * 100, 100);
         
         document.getElementById('dailyTokens').textContent = this.formatNumber(daily);
-        document.getElementById('dailyCost').textContent = '$' + ((daily / 1000000) * 2.5).toFixed(2);
         document.getElementById('sessionTokens').textContent = this.formatNumber(session);
         document.getElementById('tokenBar').style.width = percent + '%';
         document.getElementById('tokenPercent').textContent = percent.toFixed(1) + '%';
@@ -341,8 +334,7 @@ class Dashboard {
                             <span class="task-priority ${t.task_priority}">${t.task_priority}</span>
                             <div class="task-title">${this.escapeHtml(t.task_title)}</div>
                             <div class="task-meta">
-                                <span>⚡ ${this.formatNumber(t.task_tokens)}</span>
-                                <span>$${((t.task_tokens || 0) / 1000000 * 2.5).toFixed(2)}</span>
+                                <span>⚡ ${this.formatNumber(t.task_tokens)} tokens</span>
                             </div>
                         </div>
                     `).join('');
