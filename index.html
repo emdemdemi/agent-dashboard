@@ -3,42 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🤖 Agent Dashboard</title>
+    <title>🤖 Agent Dashboard - LIVE</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
     <style>
-/* Agent Dashboard - Dark Theme */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
-    --bg-primary: #0d0d0f;
-    --bg-secondary: #16181c;
-    --bg-tertiary: #1e2127;
-    --bg-hover: #2a2f35;
-    --accent-primary: #00d4aa;
-    --accent-secondary: #00a884;
-    --accent-danger: #ff4757;
-    --accent-warning: #ffa502;
-    --text-primary: #ffffff;
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-tertiary: #21262d;
+    --accent-primary: #238636;
+    --accent-secondary: #1f6feb;
+    --accent-danger: #da3633;
+    --accent-warning: #d29922;
+    --text-primary: #e6edf3;
     --text-secondary: #8b949e;
     --text-muted: #6e7681;
     --border-color: #30363d;
-    --shadow: 0 4px 20px rgba(0,0,0,0.4);
-    --radius: 12px;
-    --radius-sm: 8px;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
 }
 .dashboard-header {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(13, 13, 15, 0.95);
+    background: rgba(13, 17, 23, 0.95);
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border-color);
     padding: 12px 16px;
     display: flex;
@@ -47,331 +40,420 @@ body {
     flex-wrap: wrap;
     gap: 12px;
 }
-.header-left h1 { font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-.version { font-size: 0.75rem; color: var(--text-muted); background: var(--bg-tertiary); padding: 2px 8px; border-radius: 20px; }
-.header-center { display: flex; align-items: center; gap: 16px; }
-.status-indicator { display: flex; align-items: center; gap: 8px; background: var(--bg-secondary); padding: 6px 12px; border-radius: 20px; }
-.status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-warning); animation: pulse 2s infinite; }
-.status-dot.active { background: var(--accent-primary); box-shadow: 0 0 10px var(--accent-primary); }
-@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1); } }
-.status-text { font-size: 0.875rem; font-weight: 500; }
-.last-update { font-size: 0.75rem; color: var(--text-muted); }
-.btn { padding: 8px 14px; border: none; border-radius: var(--radius-sm); font-size: 0.875rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
-.btn:active { transform: scale(0.95); }
-.btn-pause { background: var(--accent-warning); color: var(--bg-primary); }
-.btn-stop { background: var(--accent-danger); color: white; }
-.btn-refresh { background: var(--bg-tertiary); color: var(--text-primary); }
-.btn-small { padding: 6px 12px; font-size: 0.75rem; background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer; font-weight: 500; }
-.btn-small.active { background: var(--accent-primary); color: var(--bg-primary); border-color: var(--accent-primary); }
-.btn-text { background: none; border: none; color: var(--accent-primary); font-size: 0.75rem; cursor: pointer; padding: 4px 8px; }
-.dashboard-main { padding: 16px; display: grid; grid-template-columns: 1fr; gap: 16px; max-width: 1400px; margin: 0 auto; }
-@media (min-width: 768px) { .dashboard-main { grid-template-columns: repeat(2, 1fr); padding: 24px; } }
-@media (min-width: 1200px) { .dashboard-main { grid-template-columns: repeat(3, 1fr); } }
-.panel { background: var(--bg-secondary); border-radius: var(--radius); border: 1px solid var(--border-color); overflow: hidden; }
-.panel-header { padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
-.panel-header h2 { font-size: 1rem; font-weight: 600; }
-.token-display { padding: 20px; }
-.token-metric { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
-.token-metric.secondary { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); }
-.metric-label { color: var(--text-secondary); font-size: 0.875rem; }
-.metric-value { font-size: 1.75rem; font-weight: 700; color: var(--accent-primary); }
-.metric-sublabel { color: var(--text-muted); font-size: 0.75rem; }
-.token-bar-container { display: flex; align-items: center; gap: 12px; }
-.token-bar { flex: 1; height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden; }
-.token-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary)); border-radius: 4px; transition: width 0.5s ease; }
-.token-percentage { font-size: 0.875rem; color: var(--text-secondary); min-width: 40px; font-weight: 500; }
-.details-panel { padding: 0 20px 20px; }
-.detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.875rem; }
-.detail-row:last-child { border-bottom: none; }
-.detail-row span:first-child { color: var(--text-muted); }
-.kanban-board { display: flex; gap: 12px; padding: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
-.kanban-column { min-width: 280px; flex: 1; background: var(--bg-tertiary); border-radius: var(--radius-sm); display: flex; flex-direction: column; max-height: 550px; scroll-snap-align: start; }
-.column-header { padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 0.875rem; border-bottom: 1px solid var(--border-color); }
-.count { background: var(--bg-secondary); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; color: var(--text-secondary); }
-.column-cards { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-.task-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 14px; cursor: pointer; transition: all 0.2s; }
-.task-card:hover, .task-card:active { border-color: var(--accent-primary); transform: translateX(4px); }
-.task-priority { display: inline-block; font-size: 0.625rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-weight: 700; margin-bottom: 6px; }
-.priority-high { background: rgba(255, 71, 87, 0.2); color: var(--accent-danger); }
-.priority-medium { background: rgba(255, 165, 2, 0.2); color: var(--accent-warning); }
-.priority-low { background: rgba(0, 212, 170, 0.2); color: var(--accent-primary); }
-.task-title { font-size: 0.875rem; font-weight: 500; margin-bottom: 6px; }
-.task-meta { display: flex; align-items: center; gap: 12px; font-size: 0.75rem; color: var(--text-muted); }
-.task-tokens { display: flex; align-items: center; gap: 4px; color: var(--accent-primary); }
-.cron-list, .project-list { padding: 16px; max-height: 350px; overflow-y: auto; }
-.cron-item, .project-item { padding: 14px; background: var(--bg-tertiary); border-radius: var(--radius-sm); margin-bottom: 10px; border-left: 3px solid var(--accent-primary); }
-.cron-name, .project-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; }
-.cron-schedule { font-size: 0.8rem; color: var(--accent-primary); font-family: monospace; background: rgba(0,212,170,0.1); padding: 2px 6px; border-radius: 4px; display: inline-block; }
-.project-steps { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; }
-.log-container { padding: 16px; max-height: 300px; overflow-y: auto; font-family: 'SF Mono', monospace; font-size: 0.75rem; }
-.log-entry { padding: 6px 0; border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; }
-.log-entry:last-child { border-bottom: none; }
-.timestamp { color: var(--text-muted); min-width: 70px; }
-.message { color: var(--text-secondary); }
-.log-entry.error .message { color: var(--accent-danger); }
-.log-entry.success .message { color: var(--accent-primary); }
-.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; -webkit-tap-highlight-color: transparent; }
-.modal-content { background: var(--bg-secondary); border-radius: var(--radius); padding: 24px; max-width: 380px; width: 100%; border: 1px solid var(--border-color); }
-.modal-content h3 { margin-bottom: 16px; font-size: 1.125rem; }
-.move-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
-.btn-move { padding: 14px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); cursor: pointer; font-size: 0.875rem; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
-.btn-move:hover, .btn-move:active { border-color: var(--accent-primary); background: var(--bg-hover); }
-.btn-close { width: 100%; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; margin-top: 8px; }
-.empty-state { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.9rem; }
-.hidden { display: none !important; }
-.project-summary { padding: 16px; background: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); }
-.stat-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; }
-.stat-row:last-child { margin-bottom: 0; }
-.stat-value { color: var(--accent-primary); font-weight: 600; }
-@media (max-width: 768px) {
-    .kanban-column { min-width: 85vw; }
-    .header-center { order: 3; width: 100%; justify-content: center; margin-top: 8px; }
+.header-left h1 { font-size: 1.1rem; font-weight: 600; }
+.connection-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    background: var(--bg-tertiary);
+    border-radius: 20px;
 }
+.connection-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-warning);
+}
+.connection-dot.connected { background: var(--accent-primary); box-shadow: 0 0 8px var(--accent-primary); }
+.connection-dot.error { background: var(--accent-danger); }
+.btn { padding: 8px 14px; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
+.btn-refresh { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+.dashboard-main { padding: 16px; display: grid; grid-template-columns: 1fr; gap: 16px; max-width: 1400px; margin: 0 auto; }
+@media (min-width: 768px) { .dashboard-main { grid-template-columns: repeat(2, 1fr); } }
+.panel { background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
+.panel-header { padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+.panel-header h2 { font-size: 0.95rem; font-weight: 600; }
+.token-display { padding: 20px; }
+.token-metric { display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px; }
+.metric-value { font-size: 2rem; font-weight: 700; color: var(--accent-primary); }
+.metric-label { color: var(--text-secondary); font-size: 0.9rem; }
+.token-bar-container { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.token-bar { flex: 1; height: 8px; background: var(--bg-tertiary); border-radius: 4px; }
+.token-bar-fill { height: 100%; background: var(--accent-primary); border-radius: 4px; transition: width 0.5s ease; }
+.status-panel { padding: 20px; text-align: center; }
+.status-indicator-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    background: var(--bg-tertiary);
+    border: 3px solid var(--text-muted);
+}
+.status-indicator-large.online { 
+    border-color: var(--accent-primary); 
+    background: rgba(35, 134, 54, 0.1);
+    animation: pulse-green 2s infinite;
+}
+@keyframes pulse-green {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(35, 134, 54, 0.4); }
+    50% { box-shadow: 0 0 0 15px rgba(35, 134, 54, 0); }
+}
+.status-indicator-large.working { 
+    border-color: var(--accent-secondary); 
+    background: rgba(31, 111, 235, 0.1);
+    animation: pulse-blue 1.5s infinite;
+}
+@keyframes pulse-blue {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(31, 111, 235, 0.4); }
+    50% { box-shadow: 0 0 0 15px rgba(31, 111, 235, 0); }
+}
+.current-task { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
+.last-updated { font-size: 0.75rem; color: var(--text-muted); }
+.kanban-board { display: flex; gap: 12px; padding: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.kanban-column { min-width: 260px; flex: 1; background: var(--bg-tertiary); border-radius: 8px; max-height: 500px; }
+.column-header { padding: 12px; display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 0.85rem; border-bottom: 1px solid var(--border-color); }
+.count { background: var(--bg-secondary); padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; color: var(--text-secondary); }
+.column-cards { padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 100px; }
+.task-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; }
+.task-priority { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-weight: 700; margin-bottom: 6px; display: inline-block; }
+.priority-high { background: rgba(218, 54, 51, 0.2); color: var(--accent-danger); }
+.priority-medium { background: rgba(210, 153, 34, 0.2); color: var(--accent-warning); }
+.priority-low { background: rgba(35, 134, 54, 0.2); color: var(--accent-primary); }
+.task-title { font-size: 0.85rem; font-weight: 500; }
+.task-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; display: flex; gap: 12px; }
+.log-container { padding: 16px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 0.75rem; }
+.log-entry { padding: 6px 0; border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; }
+.timestamp { color: var(--text-muted); min-width: 60px; }
+.message { color: var(--text-secondary); }
+.empty-state { text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.85rem; }
+.setup-instructions { 
+    background: var(--bg-tertiary); 
+    padding: 16px; 
+    border-radius: 8px; 
+    margin: 16px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+.setup-instructions code {
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.75rem;
+}
+.setup-instructions ol { margin-left: 20px; margin-top: 12px; }
+.setup-instructions li { margin-bottom: 8px; }
 </style>
 </head>
 <body>
     <div id="app">
         <header class="dashboard-header">
             <div class="header-left">
-                <h1>🤖 Agent Dashboard</h1>
-                <span class="version">v1.0</span>
+                <h1>🤖 Agent Dashboard <span style="color: var(--accent-primary); font-size: 0.8rem;">LIVE</span></h1>
             </div>
-            <div class="header-center">
-                <div class="status-indicator" id="systemStatus">
-                    <span class="status-dot active"></span>
-                    <span class="status-text" id="statusText">Online</span>
+            <div class="header-center" style="display: flex; gap: 12px;">
+                <div class="connection-status" id="connectionStatus">
+                    <span class="connection-dot" id="connectionDot"></span>
+                    <span id="connectionText">Connecting...</span>
                 </div>
-                <span class="last-update" id="lastUpdate">Just now</span>
+                <span class="last-updated" id="lastSync">--:--:--</span>
             </div>
             <div class="header-right">
-                <button class="btn btn-pause" id="btnPause" onclick="dashboard.togglePause()">⏸️</button>
-                <button class="btn btn-stop" onclick="dashboard.emergencyStop()">🛑</button>
-                <button class="btn btn-refresh" onclick="dashboard.refreshData()">🔄</button>
+                <button class="btn btn-refresh" onclick="dashboard.manualRefresh()">🔄 Refresh</button>
             </div>
         </header>
 
         <main class="dashboard-main">
+            <section class="panel status-panel" style="grid-column: 1 / -1;">
+                <div class="status-indicator-large online" id="statusIndicator">🤖</div>
+                <div class="current-task" id="currentTask">Initializing...</div>
+                <div class="last-updated" id="lastUpdated">Waiting for data...</div>
+            </section>
+
             <section class="panel token-panel">
-                <div class="panel-header">
-                    <h2>📊 Token Usage</h2>
-                    <button class="btn-text" onclick="dashboard.toggleDetails()">Details</button>
-                </div>
+                <div class="panel-header"><h2>📊 Token Usage</h2></div>
                 <div class="token-display">
                     <div class="token-metric">
-                        <span class="metric-label">Daily</span>
-                        <span class="metric-value" id="dailyTokens">5.2K</span>
-                        <span class="metric-sublabel">/ 100K</span>
+                        <span class="metric-value" id="dailyTokens">--</span>
+                        <span class="metric-label">/ 100K daily</span>
                     </div>
                     <div class="token-bar-container">
-                        <div class="token-bar"><div class="token-bar-fill" style="width: 5.2%"></div></div>
-                        <span class="token-percentage">5.2%</span>
+                        <div class="token-bar"><div class="token-bar-fill" id="dailyBar" style="width: 0%"></div></div>
                     </div>
-                    <div class="token-metric secondary">
-                        <span class="metric-label">Session</span>
-                        <span class="metric-value" id="sessionTokens">1,245</span>
+                    <div style="margin-top: 16px; font-size: 0.85rem; color: var(--text-secondary);">
+                        Session: <span id="sessionTokens" style="color: var(--text-primary); font-weight: 600;">--</span> tokens
                     </div>
-                </div>
-                <div id="tokenDetails" class="details-panel hidden">
-                    <div class="detail-row"><span>Model</span> <span>o1-mini</span></div>
-                    <div class="detail-row"><span>Input</span> <span>850</span></div>
-                    <div class="detail-row"><span>Output</span> <span>395</span></div>
-                    <div class="detail-row"><span>Est. Cost</span> <span>$0.08</span></div>
                 </div>
             </section>
 
             <section class="panel kanban-panel" style="grid-column: 1 / -1;">
-                <div class="panel-header">
-                    <h2>📋 Task Board</h2>
-                    <div>
-                        <button class="btn-small" onclick="dashboard.filterTasks('all')">All</button>
-                        <button class="btn-small" onclick="dashboard.filterTasks('high')">High</button>
-                    </div>
-                </div>
-                <div class="project-summary">
-                    <div class="stat-row"><span>Active Projects</span><span class="stat-value" id="activeProjects">2</span></div>
-                    <div class="stat-row"><span>In Progress</span><span class="stat-value" id="wipTasks">1</span></div>
-                    <div class="stat-row"><span>Est. Tokens Needed</span><span class="stat-value" id="pendingTokens">12.5K</span></div>
-                </div>
+                <div class="panel-header"><h2>📋 Task Board</h2></div>
                 <div class="kanban-board" id="kanbanBoard">
-                    <div class="kanban-column">
-                        <div class="column-header"><span>📥 Backlog</span><span class="count" id="countBacklog">1</span></div>
-                        <div class="column-cards" id="backlogCards"></div>
-                    </div>
-                    <div class="kanban-column">
-                        <div class="column-header"><span>📝 To Do</span><span class="count" id="countTodo">1</span></div>
-                        <div class="column-cards" id="todoCards"></div>
-                    </div>
-                    <div class="kanban-column">
-                        <div class="column-header"><span>▶️ In Progress</span><span class="count" id="countInProgress">1</span></div>
-                        <div class="column-cards" id="inProgressCards"></div>
-                    </div>
-                    <div class="kanban-column">
-                        <div class="column-header"><span>👀 Review</span><span class="count" id="countReview">0</span></div>
-                        <div class="column-cards" id="reviewCards"></div>
-                    </div>
-                    <div class="kanban-column">
-                        <div class="column-header"><span>✅ Done</span><span class="count" id="countDone">1</span></div>
-                        <div class="column-cards" id="doneCards"></div>
-                    </div>
+                    <div class="kanban-column"><div class="column-header"><span>📥 Backlog</span><span class="count" id="count-backlog">0</span></div><div class="column-cards" id="col-backlog"></div></div>
+                    <div class="kanban-column"><div class="column-header"><span>📝 To Do</span><span class="count" id="count-todo">0</span></div><div class="column-cards" id="col-todo"></div></div>
+                    <div class="kanban-column"><div class="column-header"><span>▶️ In Progress</span><span class="count" id="count-inprogress">0</span></div><div class="column-cards" id="col-inprogress"></div></div>
+                    <div class="kanban-column"><div class="column-header"><span>👀 Review</span><span class="count" id="count-review">0</span></div><div class="column-cards" id="col-review"></div></div>
+                    <div class="kanban-column"><div class="column-header"><span>✅ Done</span><span class="count" id="count-done">0</span></div><div class="column-cards" id="col-done"></div></div>
                 </div>
             </section>
 
             <section class="panel log-panel" style="grid-column: 1 / -1;">
-                <div class="panel-header">
-                    <h2>📝 Activity Log</h2>
-                    <button class="btn-text" onclick="dashboard.clearLog()">Clear</button>
+                <div class="panel-header"><h2>📝 Activity Log</h2></div>
+                <div class="log-container" id="activityLog">
+                    <div class="empty-state">Waiting for connection to Supabase...</div>
                 </div>
-                <div class="log-container" id="activityLog"></div>
+            </section>
+
+            <section id="setupSection" style="grid-column: 1 / -1;">
+                <div class="setup-instructions">
+                    <strong>⚠️ Supabase Setup Required</strong><br><br>
+                    The dashboard is connected but needs the database tables created. Run this SQL in your Supabase SQL Editor:
+                    <ol>
+                        <li>Go to <a href="https://app.supabase.com/project/altmxznbmxidqirlarwh/editor" target="_blank" style="color: var(--accent-primary);">Supabase SQL Editor</a></li>
+                        <li>Click "New Query"</li>
+                        <li>Paste the SQL from <code>setup.sql</code> file</li>
+                        <li>Click "Run"</li>
+                    </ol>
+                    The dashboard will automatically populate with live data once tables exist.
+                </div>
             </section>
         </main>
-
-        <div id="taskModal" class="modal hidden">
-            <div class="modal-content">
-                <h3>Move Task</h3>
-                <p id="taskModalTitle">Task</p>
-                <div class="move-options">
-                    <button class="btn-move" onclick="dashboard.moveTask('backlog')">📥 Backlog</button>
-                    <button class="btn-move" onclick="dashboard.moveTask('todo')">📝 To Do</button>
-                    <button class="btn-move" onclick="dashboard.moveTask('inprogress')">▶️ In Progress</button>
-                    <button class="btn-move" onclick="dashboard.moveTask('review')">👀 Review</button>
-                    <button class="btn-move" onclick="dashboard.moveTask('done')">✅ Done</button>
-                </div>
-                <button class="btn-close" onclick="dashboard.closeModal()">Cancel</button>
-            </div>
-        </div>
     </div>
 
 <script>
-const dashboard = {
-    tasks: [
-        { id: 't1', title: 'Build Dashboard', priority: 'high', status: 'inprogress', tokens: 5200 },
-        { id: 't2', title: 'Create CV Website', priority: 'high', status: 'todo', tokens: 8000 },
-        { id: 't3', title: 'Job Market Research', priority: 'medium', status: 'backlog', tokens: 2500 },
-        { id: 't4', title: 'Setup Cron Jobs', priority: 'low', status: 'done', tokens: 1500 }
-    ],
-    currentTask: null,
-    filter: 'all',
+const SUPABASE_URL = 'https://altmxznbmxidqirlarwh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFsdG14em5ibXhpZHFpcmxhcndoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMzgxNTksImV4cCI6MjA4NTcxNDE1OX0.Sgl81tgqHI8S3ZzqbJYBa9jAl70HPa5b5_sCoGpDUJY';
 
-    init() {
-        this.renderAll();
-        this.log('Dashboard loaded', 'info');
-        setInterval(() => this.updateTime(), 30000);
-        window.addEventListener('touchstart', () => {}, { passive: true });
-    },
+class LiveDashboard {
+    constructor() {
+        this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        this.data = { status: null, tasks: [], activities: [] };
+        this.init();
+    }
 
-    renderAll() {
-        const filtered = this.filter === 'all' ? this.tasks : this.tasks.filter(t => t.priority === this.filter);
-        const cols = { backlog: [], todo: [], inprogress: [], review: [], done: [] };
-        filtered.forEach(t => cols[t.status]?.push(t));
+    async init() {
+        this.updateConnection('connecting');
         
-        Object.entries(cols).forEach(([status, tasks]) => {
-            const container = document.getElementById(status + 'Cards');
-            const countEl = document.getElementById('count' + status.charAt(0).toUpperCase() + status.slice(1));
-            if (container) {
-                countEl.textContent = tasks.length;
-                container.innerHTML = tasks.length ? tasks.map(t => `
-                    <div class="task-card" onclick="dashboard.openModal('${t.id}')">
-                        <span class="task-priority priority-${t.priority}">${t.priority}</span>
-                        <div class="task-title">${t.title}</div>
-                        <div class="task-meta">
-                            <span class="task-tokens">⚡ ${(t.tokens/1000).toFixed(1)}K</span>
-                            <span>${t.id}</span>
-                        </div>
-                    </div>
-                `).join('') : '<p class="empty-state">No tasks</p>';
+        // Initial load
+        await this.loadData();
+        
+        // Subscribe to realtime changes
+        this.subscribeToChanges();
+        
+        // Poll every 30 seconds as backup
+        setInterval(() => this.loadData(), 30000);
+    }
+
+    updateConnection(status) {
+        const dot = document.getElementById('connectionDot');
+        const text = document.getElementById('connectionText');
+        const lastSync = document.getElementById('lastSync');
+        
+        dot.className = 'connection-dot ' + status;
+        text.textContent = status === 'connected' ? 'Live' : status === 'connecting' ? 'Connecting...' : 'Error';
+        lastSync.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    async loadData() {
+        try {
+            // Load status
+            const { data: status, error: statusError } = await this.supabase
+                .from('agent_status')
+                .select('*')
+                .eq('id', 1)
+                .single();
+
+            if (statusError && statusError.code !== 'PGRST116') {
+                console.log('Status table not ready yet');
+                this.showSetup();
+                return;
             }
+
+            if (status) {
+                this.data.status = status;
+                this.updateConnection('connected');
+                document.getElementById('setupSection').style.display = 'none';
+            }
+
+            // Load tasks
+            const { data: tasks } = await this.supabase
+                .from('agent_tasks')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (tasks) this.data.tasks = tasks;
+
+            // Load activities
+            const { data: activities } = await this.supabase
+                .from('agent_activities')
+                .select('*')
+                .order('id', { ascending: false })
+                .limit(20);
+
+            if (activities) this.data.activities = activities;
+
+            this.render();
+
+        } catch (e) {
+            console.error('Load error:', e);
+            this.updateConnection('error');
+        }
+    }
+
+    subscribeToChanges() {
+        // Subscribe to agent status changes
+        this.supabase
+            .channel('agent-status')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'agent_status' }, payload => {
+                console.log('Status change:', payload);
+                this.data.status = payload.new;
+                this.render();
+            })
+            .subscribe();
+
+        // Subscribe to task changes
+        this.supabase
+            .channel('agent-tasks')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'agent_tasks' }, payload => {
+                console.log('Task change:', payload);
+                this.loadData();
+            })
+            .subscribe();
+
+        // Subscribe to activity changes
+        this.supabase
+            .channel('agent-activities')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'agent_activities' }, payload => {
+                console.log('New activity:', payload);
+                this.data.activities.unshift(payload.new);
+                this.renderLog();
+            })
+            .subscribe();
+    }
+
+    render() {
+        this.renderStatus();
+        this.renderTokens();
+        this.renderKanban();
+        this.renderLog();
+    }
+
+    renderStatus() {
+        if (!this.data.status) return;
+        
+        const indicator = document.getElementById('statusIndicator');
+        const task = document.getElementById('currentTask');
+        const updated = document.getElementById('lastUpdated');
+
+        // Update status indicator
+        indicator.className = 'status-indicator-large';
+        if (this.data.status.status === 'online') {
+            indicator.classList.add('online');
+            indicator.textContent = '🤖';
+        } else if (this.data.status.status === 'working') {
+            indicator.classList.add('working');
+            indicator.textContent = '⚡';
+        }
+
+        // Update current task
+        task.textContent = this.data.status.current_task || 'Idle';
+        
+        // Update timestamp
+        const date = new Date(this.data.status.updated_at);
+        updated.textContent = 'Last update: ' + date.toLocaleTimeString();
+    }
+
+    renderTokens() {
+        if (!this.data.status) return;
+
+        const daily = this.data.status.tokens_daily || 0;
+        const limit = 100000;
+        const percent = Math.min((daily / limit) * 100, 100);
+
+        document.getElementById('dailyTokens').textContent = (daily / 1000).toFixed(1) + 'K';
+        document.getElementById('dailyBar').style.width = percent + '%';
+        document.getElementById('sessionTokens').textContent = (this.data.status.tokens_session || 0).toLocaleString();
+    }
+
+    renderKanban() {
+        const columns = { backlog: [], todo: [], inprogress: [], review: [], done: [] };
+        
+        this.data.tasks.forEach(task => {
+            const status = (task.task_status || 'backlog').toLowerCase().replace('-', '');
+            if (columns[status]) columns[status].push(task);
         });
 
-        // Update summary
-        document.getElementById('activeProjects').textContent = '2';
-        document.getElementById('wipTasks').textContent = this.tasks.filter(t => t.status === 'inprogress').length;
-        const pendingTokens = this.tasks.filter(t => t.status !== 'done').reduce((a, t) => a + t.tokens, 0);
-        document.getElementById('pendingTokens').textContent = (pendingTokens/1000).toFixed(1) + 'K';
-    },
-
-    openModal(taskId) {
-        this.currentTask = taskId;
-        const task = this.tasks.find(t => t.id === taskId);
-        document.getElementById('taskModalTitle').textContent = task?.title || 'Task';
-        document.getElementById('taskModal').classList.remove('hidden');
-    },
-
-    closeModal() {
-        document.getElementById('taskModal').classList.add('hidden');
-        this.currentTask = null;
-    },
-
-    moveTask(newStatus) {
-        if (!this.currentTask) return;
-        const task = this.tasks.find(t => t.id === this.currentTask);
-        if (task) {
-            task.status = newStatus;
-            this.renderAll();
-            this.log(`Moved "${task.title}" → ${newStatus}`, 'success');
-        }
-        this.closeModal();
-    },
-
-    toggleDetails() {
-        document.getElementById('tokenDetails').classList.toggle('hidden');
-    },
-
-    filterTasks(priority) {
-        this.filter = priority;
-        this.renderAll();
-        this.log(`Filtered by: ${priority}`, 'info');
-    },
-
-    togglePause() {
-        const btn = document.getElementById('btnPause');
-        const dot = document.querySelector('.status-dot');
-        const text = document.getElementById('statusText');
-        
-        if (btn.textContent === '⏸️') {
-            btn.textContent = '▶️';
-            dot.classList.remove('active');
-            text.textContent = 'Paused';
-            this.log('System paused', 'info');
-        } else {
-            btn.textContent = '⏸️';
-            dot.classList.add('active');
-            text.textContent = 'Online';
-            this.log('System resumed', 'success');
-        }
-    },
-
-    emergencyStop() {
-        document.querySelector('.status-dot').classList.remove('active');
-        document.getElementById('statusText').textContent = 'Stopped';
-        this.log('EMERGENCY STOP', 'error');
-        alert('Emergency stop activated. Refresh page to resume.');
-    },
-
-    refreshData() {
-        this.renderAll();
-        this.log('Refreshed', 'success');
-        this.updateTime();
-    },
-
-    updateTime() {
-        document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    },
-
-    log(msg, type = 'info') {
-        const log = document.getElementById('activityLog');
-        const entry = document.createElement('div');
-        entry.className = 'log-entry ' + type;
-        entry.innerHTML = `<span class="timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span><span class="message">${msg}</span>`;
-        log.insertBefore(entry, log.firstChild);
-        while (log.children.length > 50) log.removeChild(log.lastChild);
-    },
-
-    clearLog() {
-        document.getElementById('activityLog').innerHTML = '';
+        Object.entries(columns).forEach(([col, tasks]) => {
+            const container = document.getElementById('col-' + col);
+            const count = document.getElementById('count-' + col);
+            
+            if (container && count) {
+                count.textContent = tasks.length;
+                container.innerHTML = tasks.map(t => `
+                    <div class="task-card">
+                        <span class="task-priority priority-${t.task_priority}">${t.task_priority}</span>
+                        <div class="task-title">${t.task_title}</div>
+                        <div class="task-meta">
+                            <span>⚡ ${(t.task_tokens / 1000).toFixed(1)}K</span>
+                            <span>${t.task_status}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        });
     }
-};
 
-dashboard.init();
+    renderLog() {
+        const container = document.getElementById('activityLog');
+        
+        if (!this.data.activities || this.data.activities.length === 0) {
+            container.innerHTML = '<div class="empty-state">No activity yet</div>';
+            return;
+        }
+
+        container.innerHTML = this.data.activities.map(a => `
+            <div class="log-entry">
+                <span class="timestamp">${a.activity_time || '--:--'}</span>
+                <span class="message">${a.activity_message}</span>
+            </div>
+        `).join('');
+    }
+
+    showSetup() {
+        document.getElementById('setupSection').style.display = 'block';
+        document.getElementById('activityLog').innerHTML = '<div class="empty-state">Supabase tables not created yet. See setup instructions below.</div>';
+    }
+
+    manualRefresh() {
+        this.loadData();
+        this.updateConnection('connected');
+    }
+
+    async updateMyStatus(status, task) {
+        const { error } = await this.supabase
+            .from('agent_status')
+            .upsert({ 
+                id: 1, 
+                status: status, 
+                current_task: task, 
+                updated_at: new Date().toISOString() 
+            });
+        if (error) console.error('Update error:', error);
+    }
+
+    async logActivity(message, type = 'info') {
+        const { error } = await this.supabase
+            .from('agent_activities')
+            .insert({
+                activity_time: new Date().toLocaleTimeString(),
+                activity_message: message,
+                type: type,
+                agent_status_id: 1
+            });
+        if (error) console.error('Log error:', error);
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    window.dashboard = new LiveDashboard();
+});
 </script>
 </body>
 </html>
