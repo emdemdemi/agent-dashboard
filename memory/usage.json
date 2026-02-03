@@ -1,0 +1,17 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-02-03T21:00:00Z",
+  "daily": 12450,
+  "session": 3250,
+  "limit": 100000,
+  "input": 8950,
+  "output": 3500,
+  "model": "kimi-k2.5",
+  "sessionsToday": 8,
+  "history": [
+    {"hour": "18:00", "tokens": 2100},
+    {"hour": "19:00", "tokens": 3400},
+    {"hour": "20:00", "tokens": 4150},
+    {"hour": "21:00", "tokens": 2800}
+  ]
+}

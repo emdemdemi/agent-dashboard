@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-02-03T21:00:00Z",
+  "columns": ["backlog", "todo", "inprogress", "review", "done"],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Build Agent Dashboard",
+      "description": "Create unified dashboard with token tracking, kanban board, and project planner",
+      "priority": "high",
+      "status": "done",
+      "tokens": 7500,
+      "createdAt": "2026-02-03T20:00:00Z",
+      "updatedAt": "2026-02-03T21:00:00Z"
+    },
+    {
+      "id": "t2",
+      "title": "Create CV Website",
+      "description": "Build professional CV showcase website for Emir",
+      "priority": "high",
+      "status": "todo",
+      "tokens": 8000,
+      "createdAt": "2026-02-03T20:30:00Z",
+      "updatedAt": "2026-02-03T20:30:00Z"
+    },
+    {
+      "id": "t3",
+      "title": "Research Job Listings",
+      "description": "Find relevant job postings matching Emir's skills",
+      "priority": "medium",
+      "status": "backlog",
+      "tokens": 2000,
+      "createdAt": "2026-02-03T20:45:00Z",
+      "updatedAt": "2026-02-03T20:45:00Z"
+    },
+    {
+      "id": "t4",
+      "title": "Set Up Overnight Cron Jobs",
+      "description": "Configure automated tasks for night-time execution",
+      "priority": "low",
+      "status": "backlog",
+      "tokens": 1500,
+      "createdAt": "2026-02-03T21:00:00Z",
+      "updatedAt": "2026-02-03T21:00:00Z"
+    }
+  ]
+}

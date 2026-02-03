@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-02-03T19:06:00Z",
+  "status": "online",
+  "currentTask": {
+    "id": "t1",
+    "title": "Building live dashboard connection",
+    "startedAt": "2026-02-03T19:05:00Z",
+    "estimatedTokens": 1500,
+    "priority": "high"
+  },
+  "session": {
+    "tokensUsed": 1420,
+    "tokensInput": 890,
+    "tokensOutput": 530,
+    "model": "kimi-k2.5",
+    "startTime": "2026-02-03T18:45:00Z"
+  },
+  "daily": {
+    "tokensUsed": 15280,
+    "tokensLimit": 100000,
+    "sessionsCount": 12,
+    "costEstimate": 0.18
+  },
+  "recentActivity": [
+    {"time": "22:06:00", "message": "Started live dashboard setup", "type": "success"},
+    {"time": "22:05:00", "message": "Received approval to wire live status", "type": "info"},
+    {"time": "22:02:00", "message": "Dashboard deployed to GitHub Pages", "type": "success"},
+    {"time": "21:48:00", "message": "GitHub repository created", "type": "success"}
+  ],
+  "pendingTasks": [
+    {"id": "t2", "title": "Create CV Website", "status": "todo", "priority": "high", "tokens": 8000},
+    {"id": "t3", "title": "Job Market Research", "status": "backlog", "priority": "medium", "tokens": 2500}
+  ],
+  "quickActions": {
+    "canPause": true,
+    "canStop": true,
+    "isPaused": false
+  }
+}

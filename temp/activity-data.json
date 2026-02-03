@@ -1,0 +1,5 @@
+[
+  {"id":1,"activity_time":"23:04:00","activity_message":"Testing Supabase connection","type":"success","agent_status_id":1},
+  {"id":2,"activity_time":"23:03:00","activity_message":"Received service role key","type":"info","agent_status_id":1},
+  {"id":3,"activity_time":"23:02:00","activity_message":"Dashboard deployed successfully","type":"success","agent_status_id":1}
+]
