@@ -258,15 +258,9 @@ body {
                 </div>
             </div>
             <div class="status-card">
-                <div class="token-grid">
-                    <div class="token-box">
-                        <div class="token-value" id="dailyTokens">--</div>
-                        <div class="token-label">Daily Tokens</div>
-                    </div>
-                    <div class="token-box">
-                        <div class="token-value" id="sessionTokens">--</div>
-                        <div class="token-label">Session Tokens</div>
-                    </div>
+                <div class="token-box" style="text-align: center; padding: 16px; background: var(--bg-tertiary); border-radius: 8px;">
+                    <div class="token-value" id="dailyTokens">--</div>
+                    <div class="token-label">Tokens Used Today</div>
                 </div>
             </div>
         </div>
@@ -374,7 +368,6 @@ const updateUI = (status, tasks, activities) => {
         document.getElementById('statusCircle').textContent = isWorking ? '⚡' : '🤖';
         document.getElementById('currentTask').textContent = status.current_task || 'Idle';
         document.getElementById('dailyTokens').textContent = formatNum(status.tokens_daily || 0);
-        document.getElementById('sessionTokens').textContent = formatNum(status.tokens_session || 0);
     }
 
     // Kanban
