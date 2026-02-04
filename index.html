@@ -3,899 +3,478 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Agent Status — Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <title>Agent Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-primary: #0d1117;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #21262d;
-            --bg-hover: #262c36;
-            --border-color: #30363d;
-            --border-subtle: #1e2530;
-            --text-primary: #f0f6fc;
-            --text-secondary: #8b949e;
-            --text-muted: #6e7681;
-            --accent-green: #3fb950;
-            --accent-green-glow: rgba(63, 185, 80, 0.4);
-            --accent-red: #f85149;
-            --accent-red-glow: rgba(248, 81, 73, 0.4);
-            --accent-grey: #8b949e;
-            --accent-blue: #58a6ff;
-            --accent-purple: #a371f7;
-            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-mono: 'JetBrains Mono', SFMono-Regular, monospace;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-sans);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* Mobile-first container */
-        .container {
-            width: 100%;
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 16px;
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        .header-title {
-            font-size: 18px;
-            font-weight: 600;
-            letter-spacing: -0.01em;
-        }
-
-        .header-subtitle {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        .live-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .live-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--accent-green);
-            border-radius: 50%;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.9); }
-        }
-
-        /* Status Section */
-        .status-section {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 16px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .status-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .status-section.active::before {
-            opacity: 1;
-        }
-
-        .status-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .status-label {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: capitalize;
-            transition: all 0.3s ease;
-        }
-
-        .status-badge.working {
-            background: rgba(63, 185, 80, 0.15);
-            color: var(--accent-green);
-            box-shadow: 0 0 20px var(--accent-green-glow);
-        }
-
-        .status-badge.idle {
-            background: rgba(139, 148, 158, 0.15);
-            color: var(--accent-grey);
-        }
-
-        .status-badge.error {
-            background: rgba(248, 81, 73, 0.15);
-            color: var(--accent-red);
-            box-shadow: 0 0 20px var(--accent-red-glow);
-        }
-
-        .status-pulse {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .status-badge.working .status-pulse {
-            background: var(--accent-green);
-        }
-
-        .status-badge.idle .status-pulse {
-            background: var(--accent-grey);
-        }
-
-        .status-badge.error .status-pulse {
-            background: var(--accent-red);
-        }
-
-        /* Current Task */
-        .current-task {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 4px;
-        }
-
-        .current-task-label {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .current-task-text {
-            font-size: 20px;
-            font-weight: 500;
-            line-height: 1.4;
-            color: var(--text-primary);
-            word-wrap: break-word;
-        }
-
-        .current-task-text:empty::after {
-            content: 'Idle — waiting for instructions';
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        /* Stats Section */
-        .stats-section {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .stat-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 18px;
-            transition: all 0.2s ease;
-        }
-
-        .stat-card:active {
-            transform: scale(0.98);
-        }
-
-        .stat-label {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .stat-value {
-            font-family: var(--font-mono);
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--text-primary);
-            line-height: 1.2;
-        }
-
-        .stat-unit {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            margin-left: 4px;
-        }
-
-        /* Activity Section */
-        .activity-section {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .activity-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 20px;
-            border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .activity-title {
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: -0.01em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .activity-count {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            background: var(--bg-tertiary);
-            padding: 4px 10px;
-            border-radius: 12px;
-        }
-
-        .activity-list {
-            max-height: 400px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .activity-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-subtle);
-            transition: background-color 0.2s ease;
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-
-        .activity-item:active {
-            background: var(--bg-hover);
-        }
-
-        .activity-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-
-        .activity-icon.info {
-            background: rgba(88, 166, 255, 0.15);
-            color: var(--accent-blue);
-        }
-
-        .activity-icon.success {
-            background: rgba(63, 185, 80, 0.15);
-            color: var(--accent-green);
-        }
-
-        .activity-icon.warning {
-            background: rgba(210, 153, 34, 0.15);
-            color: #d29922;
-        }
-
-        .activity-icon.error {
-            background: rgba(248, 81, 73, 0.15);
-            color: var(--accent-red);
-        }
-
-        .activity-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .activity-message {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-            line-height: 1.5;
-            word-wrap: break-word;
-        }
-
-        .activity-time {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        /* Empty states */
-        .empty-state {
-            padding: 40px 20px;
-            text-align: center;
-            color: var(--text-muted);
-        }
-
-        .empty-icon {
-            font-size: 32px;
-            margin-bottom: 12px;
-            opacity: 0.5;
-        }
-
-        .empty-text {
-            font-size: 14px;
-        }
-
-        /* Error/Loading states */
-        .error-state {
-            background: rgba(248, 81, 73, 0.1);
-            border: 1px solid rgba(248, 81, 73, 0.3);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-            display: none;
-        }
-
-        .error-state.visible {
-            display: block;
-        }
-
-        .error-text {
-            font-size: 13px;
-            color: var(--accent-red);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .loading-shimmer {
-            background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-hover) 50%, var(--bg-tertiary) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 4px;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
-        /* Footer */
-        .footer {
-            margin-top: 24px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-subtle);
-            text-align: center;
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .connection-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: var(--bg-tertiary);
-            border-radius: 12px;
-            font-weight: 500;
-        }
-
-        .connection-status.connected {
-            color: var(--accent-green);
-        }
-
-        .connection-status.disconnected {
-            color: var(--accent-red);
-        }
-
-        /* Icon SVGs as CSS classes */
-        .icon-cpu::before { content: '⚡'; }
-        .icon-coins::before { content: '🔤'; }
-        .icon-activity::before { content: '📋'; }
-        .icon-clock::before { content: '🕐'; }
-        .icon-check::before { content: '✓'; }
-        .icon-warn::before { content: '⚠'; }
-        .icon-error::before { content: '✕'; }
-        .icon-info::before { content: 'ℹ'; }
-
-        /* Desktop refinements */
-        @media (min-width: 640px) {
-            .container {
-                max-width: 600px;
-                padding: 24px;
-            }
-
-            .header-title {
-                font-size: 20px;
-            }
-
-            .current-task-text {
-                font-size: 22px;
-            }
-
-            .stats-section {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 16px;
-            }
-
-            .stat-value {
-                font-size: 28px;
-            }
-        }
-
-        @media (min-width: 768px) {
-            .container {
-                max-width: 720px;
-            }
-
-            .activity-list {
-                max-height: 500px;
-            }
-        }
-
-        /* Scrollbar styling */
-        .activity-list::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .activity-list::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .activity-list::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 3px;
-        }
-
-        .activity-list::-webkit-scrollbar-thumb:hover {
-            background: var(--text-muted);
-        }
-
-        /* Reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-            .live-dot,
-            .status-pulse {
-                animation: none;
-            }
-
-            .loading-shimmer {
-                animation: none;
-                background: var(--bg-tertiary);
-            }
-
-            * {
-                transition: none !important;
-            }
-        }
+:root {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-tertiary: #21262d;
+    --bg-hover: #262c36;
+    --border: #30363d;
+    --text: #f0f6fc;
+    --text-secondary: #8b949e;
+    --text-muted: #6e7681;
+    --accent: #238636;
+    --accent-glow: rgba(35,134,54,0.4);
+    --warning: #d29922;
+    --danger: #da3633;
+    --purple: #a371f7;
+    --blue: #58a6ff;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 1400px; margin: 0 auto; padding: 16px; }
+
+/* Header */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.logo {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px;
+}
+.header-title { font-size: 20px; font-weight: 600; }
+.live-badge {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--accent);
+    background: rgba(35,134,54,0.1);
+    padding: 6px 12px; border-radius: 20px;
+}
+.live-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* Status Panel */
+.status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+@media (max-width: 640px) { .status-grid { grid-template-columns: 1fr; } }
+
+.status-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+}
+.status-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.status-circle {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    background: var(--bg-tertiary);
+    border: 3px solid var(--text-muted);
+    transition: all 0.3s;
+}
+.status-circle.working {
+    border-color: var(--accent);
+    box-shadow: 0 0 30px var(--accent-glow);
+    animation: glow 2s infinite;
+}
+@keyframes glow { 0%,100%{box-shadow:0 0 0 0 var(--accent-glow)} 50%{box-shadow:0 0 20px 5px var(--accent-glow)} }
+
+.status-info { flex: 1; }
+.status-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.status-task { font-size: 16px; font-weight: 500; margin-top: 4px; line-height: 1.4; }
+
+.token-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+}
+.token-box { text-align: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; }
+.token-value { font-size: 20px; font-weight: 700; color: var(--accent); }
+.token-label { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+/* Kanban */
+.kanban-section { margin-bottom: 24px; }
+.section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+}
+.section-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+
+.kanban-board {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+}
+.kanban-column {
+    min-width: 260px;
+    flex: 1;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    max-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+.column-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 600;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.column-count {
+    background: var(--bg-tertiary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+.column-cards {
+    padding: 12px;
+    overflow-y: auto;
+    flex: 1;
+}
+.task-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.task-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.task-card-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+}
+.task-priority {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 4px;
+}
+.priority-high { background: rgba(218,54,51,0.2); color: var(--danger); }
+.priority-medium { background: rgba(210,153,34,0.2); color: var(--warning); }
+.priority-low { background: rgba(35,134,54,0.2); color: var(--accent); }
+
+.task-title { font-size: 13px; font-weight: 500; line-height: 1.4; margin-bottom: 8px; }
+.task-meta {
+    display: flex; gap: 12px;
+    font-size: 11px; color: var(--text-secondary);
+}
+.empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* Activity Log */
+.activity-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+}
+.activity-list {
+    max-height: 280px;
+    overflow-y: auto;
+}
+.activity-item {
+    display: flex; align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-icon {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; flex-shrink: 0;
+}
+.activity-icon.success { background: rgba(35,134,54,0.2); color: var(--accent); }
+.activity-icon.error { background: rgba(218,54,51,0.2); color: var(--danger); }
+.activity-icon.warning { background: rgba(210,153,34,0.2); color: var(--warning); }
+.activity-icon.info { background: rgba(88,166,255,0.2); color: var(--blue); }
+.activity-content { flex: 1; }
+.activity-msg { font-size: 13px; }
+.activity-time { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 24px;
+}
+.connection-status { color: var(--accent); }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <header class="header">
             <div class="header-left">
                 <div class="logo">AI</div>
                 <div>
-                    <div class="header-title">Agent Status</div>
-                    <div class="header-subtitle">Real-time monitoring</div>
+                    <div class="header-title">Agent Dashboard</div>
                 </div>
             </div>
-            <div class="live-indicator">
+            <div class="live-badge">
                 <span class="live-dot"></span>
-                <span>LIVE</span>
+                <span id="connectionText">Connecting...</span>
             </div>
         </header>
 
-        <!-- Error State -->
-        <div class="error-state" id="errorState">
-            <div class="error-text">
-                <span class="icon-error"></span>
-                <span id="errorMessage">Unable to connect to monitoring service</span>
+        <!-- STATUS PANEL -->
+        <div class="status-grid">
+            <div class="status-card">
+                <div class="status-main">
+                    <div class="status-circle idle" id="statusCircle">🤖</div>
+                    <div class="status-info">
+                        <div class="status-label">Current Status</div>
+                        <div class="status-task" id="currentTask">Loading...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="status-card">
+                <div class="token-grid">
+                    <div class="token-box">
+                        <div class="token-value" id="dailyTokens">--</div>
+                        <div class="token-label">Daily Tokens</div>
+                    </div>
+                    <div class="token-box">
+                        <div class="token-value" id="sessionTokens">--</div>
+                        <div class="token-label">Session Tokens</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Status Section -->
-        <section class="status-section" id="statusSection">
-            <div class="status-header">
-                <span class="status-label">Current Status</span>
-                <span class="status-badge idle" id="statusBadge">
-                    <span class="status-pulse"></span>
-                    <span id="statusText">Idle</span>
-                </span>
+        <!-- KANBAN BOARD -->
+        <div class="kanban-section">
+            <div class="section-header">
+                <div class="section-title">📋 Task Board</div>
             </div>
-            <div class="current-task">
-                <div class="current-task-label">
-                    <span class="icon-cpu"></span>
-                    Current Task
+            <div class="kanban-board" id="kanbanBoard">
+                <div class="kanban-column">
+                    <div class="column-header">
+                        📥 Backlog
+                        <span class="column-count" id="count-backlog">0</span>
+                    </div>
+                    <div class="column-cards" id="col-backlog"></div>
                 </div>
-                <div class="current-task-text" id="currentTask">Idle — waiting for instructions</div>
+                <div class="kanban-column">
+                    <div class="column-header">
+                        📝 To Do
+                        <span class="column-count" id="count-todo">0</span>
+                    </div>
+                    <div class="column-cards" id="col-todo"></div>
+                </div>
+                <div class="kanban-column">
+                    <div class="column-header">
+                        ▶️ In Progress
+                        <span class="column-count" id="count-inprogress">0</span>
+                    </div>
+                    <div class="column-cards" id="col-inprogress"></div>
+                </div>
+                <div class="kanban-column">
+                    <div class="column-header">
+                        👀 Review
+                        <span class="column-count" id="count-review">0</span>
+                    </div>
+                    <div class="column-cards" id="col-review"></div>
+                </div>
+                <div class="kanban-column">
+                    <div class="column-header">
+                        ✅ Done
+                        <span class="column-count" id="count-done">0</span>
+                    </div>
+                    <div class="column-cards" id="col-done"></div>
+                </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Stats Section -->
-        <section class="stats-section">
-            <div class="stat-card">
-                <div class="stat-label">
-                    <span class="icon-coins"></span>
-                    Session Tokens
-                </div>
-                <div class="stat-value">
-                    <span id="tokensSession">0</span><span class="stat-unit">tok</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">
-                    <span class="icon-activity"></span>
-                    Daily Tokens
-                </div>
-                <div class="stat-value">
-                    <span id="tokensDaily">0</span><span class="stat-unit">tok</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- Activity Section -->
-        <section class="activity-section">
-            <div class="activity-header">
-                <div class="activity-title">
-                    <span class="icon-clock"></span>
-                    Activity Log
-                </div>
-                <span class="activity-count" id="activityCount">0</span>
+        <!-- ACTIVITY LOG -->
+        <div class="activity-section">
+            <div class="section-header">
+                <div class="section-title">📝 Activity Log</div>
             </div>
             <div class="activity-list" id="activityList">
-                <div class="empty-state">
-                    <div class="empty-icon">⏳</div>
-                    <div class="empty-text">Loading activities...</div>
-                </div>
+                <div class="empty-state">Loading...</div>
             </div>
-        </section>
+        </div>
 
-        <!-- Footer -->
         <footer class="footer">
-            <div class="connection-status connected" id="connectionStatus">
-                <span>●</span>
-                <span>Connected</span>
-            </div>
-            <p style="margin-top: 8px; font-size: 11px;">
-                Updates every 3s • Supabase Realtime
-            </p>
+            <span class="connection-status" id="footerStatus">Connecting to Supabase...</span>
+            <p style="margin-top: 8px;">Auto-refresh every 3 seconds</p>
         </footer>
     </div>
 
-    <script>
-        // ==================== CONFIGURATION ====================
-        const CONFIG = {
-            supabaseUrl: 'https://altmxznbmxidqirlarwh.supabase.co',
-            supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFsdG14em5ibXhpZHFpcmxhcndoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMzgxNTksImV4cCI6MjA4NTcxNDE1OX0.Sgl81tgqHI8S3ZzqbJYBa9jAl70HPa5b5_sCoGpDUJY',
-            refreshInterval: 3000, // 3 seconds
-            maxActivities: 15
-        };
+<script>
+const CONFIG = {
+    supabaseUrl: 'https://altmxznbmxidqirlarwh.supabase.co/rest/v1',
+    supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFsdG14em5ibXhpZHFpcmxhcndoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMzgxNTksImV4cCI6MjA4NTcxNDE1OX0.Sgl81tgqHI8S3ZzqbJYBa9jAl70HPa5b5_sCoGpDUJY',
+    refreshInterval: 3000
+};
 
-        // ==================== STATE ====================
-        let lastActivityTime = null;
-        let isConnected = true;
-        let refreshTimer = null;
+let lastActivities = [];
 
-        // ==================== DOM ELEMENTS ====================
-        const els = {
-            statusSection: document.getElementById('statusSection'),
-            statusBadge: document.getElementById('statusBadge'),
-            statusText: document.getElementById('statusText'),
-            currentTask: document.getElementById('currentTask'),
-            tokensSession: document.getElementById('tokensSession'),
-            tokensDaily: document.getElementById('tokensDaily'),
-            activityList: document.getElementById('activityList'),
-            activityCount: document.getElementById('activityCount'),
-            errorState: document.getElementById('errorState'),
-            errorMessage: document.getElementById('errorMessage'),
-            connectionStatus: document.getElementById('connectionStatus')
-        };
+const fetchData = async () => {
+    try {
+        const [statusRes, tasksRes, activityRes] = await Promise.all([
+            fetch(`${CONFIG.supabaseUrl}/agent_status?select=*&id=eq.1`, {
+                headers: { 'apikey': CONFIG.supabaseKey, 'Authorization': `Bearer ${CONFIG.supabaseKey}` }
+            }),
+            fetch(`${CONFIG.supabaseUrl}/agent_tasks?select=*&order=created_at.desc`, {
+                headers: { 'apikey': CONFIG.supabaseKey, 'Authorization': `Bearer ${CONFIG.supabaseKey}` }
+            }),
+            fetch(`${CONFIG.supabaseUrl}/agent_activities?select=*&order=id.desc&limit=20`, {
+                headers: { 'apikey': CONFIG.supabaseKey, 'Authorization': `Bearer ${CONFIG.supabaseKey}` }
+            })
+        ]);
 
-        // ==================== HELPERS ====================
-        const formatNumber = (num) => {
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-            return num.toLocaleString();
-        };
+        const status = statusRes.ok ? (await statusRes.json())[0] : null;
+        const tasks = tasksRes.ok ? await tasksRes.json() : [];
+        const activities = activityRes.ok ? await activityRes.json() : [];
 
-        const formatTime = (timestamp) => {
-            if (!timestamp) return '';
-            const date = new Date(timestamp);
-            const now = new Date();
-            const diffMs = now - date;
-            const diffSec = Math.floor(diffMs / 1000);
-            const diffMin = Math.floor(diffSec / 60);
-            const diffHour = Math.floor(diffMin / 60);
-            const diffDay = Math.floor(diffHour / 24);
+        updateUI(status, tasks, activities);
+        setConnectionStatus(true);
+    } catch (e) {
+        console.error('Fetch error:', e);
+        setConnectionStatus(false);
+    }
+};
 
-            if (diffSec < 5) return 'Just now';
-            if (diffSec < 60) return `${diffSec}s ago`;
-            if (diffMin < 60) return `${diffMin}m ago`;
-            if (diffHour < 24) return `${diffHour}h ago`;
-            if (diffDay < 7) return `${diffDay}d ago`;
+const updateUI = (status, tasks, activities) => {
+    // Status
+    if (status) {
+        const isWorking = status.status === 'working';
+        document.getElementById('statusCircle').className = 'status-circle ' + (isWorking ? 'working' : 'idle');
+        document.getElementById('statusCircle').textContent = isWorking ? '⚡' : '🤖';
+        document.getElementById('currentTask').textContent = status.current_task || 'Idle';
+        document.getElementById('dailyTokens').textContent = formatNum(status.tokens_daily || 0);
+        document.getElementById('sessionTokens').textContent = formatNum(status.tokens_session || 0);
+    }
 
-            return date.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        };
+    // Kanban
+    const cols = { backlog: [], todo: [], inprogress: [], review: [], done: [] };
+    (tasks || []).forEach(t => {
+        const key = (t.task_status || 'backlog').replace('-', '');
+        if (cols[key]) cols[key].push(t);
+    });
 
-        const getActivityIcon = (type) => {
-            const icons = {
-                'success': '<span class="icon-check"></span>',
-                'error': '<span class="icon-error"></span>',
-                'warning': '<span class="icon-warn"></span>',
-                'info': '<span class="icon-info"></span>'
-            };
-            return icons[type] || icons['info'];
-        };
-
-        // ==================== API FUNCTIONS ====================
-        const fetchAgentStatus = async () => {
-            try {
-                const response = await fetch(
-                    `${CONFIG.supabaseUrl}/rest/v1/agent_status?select=*&order=updated_at.desc&limit=1`,
-                    {
-                        headers: {
-                            'apikey': CONFIG.supabaseKey,
-                            'Authorization': `Bearer ${CONFIG.supabaseKey}`
-                        }
-                    }
-                );
-
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const data = await response.json();
-                return data[0] || null;
-            } catch (error) {
-                console.error('Status fetch error:', error);
-                throw error;
-            }
-        };
-
-        const fetchActivities = async () => {
-            try {
-                const response = await fetch(
-                    `${CONFIG.supabaseUrl}/rest/v1/agent_activities?select=*&order=activity_time.desc&limit=${CONFIG.maxActivities}`,
-                    {
-                        headers: {
-                            'apikey': CONFIG.supabaseKey,
-                            'Authorization': `Bearer ${CONFIG.supabaseKey}`
-                        }
-                    }
-                );
-
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                return await response.json();
-            } catch (error) {
-                console.error('Activities fetch error:', error);
-                throw error;
-            }
-        };
-
-        // ==================== UI UPDATES ====================
-        const updateStatus = (status) => {
-            if (!status) return;
-
-            // Update status badge
-            const statusClass = (status.status || 'idle').toLowerCase();
-            els.statusBadge.className = `status-badge ${statusClass}`;
-            els.statusText.textContent = status.status || 'Idle';
-            els.statusSection.classList.toggle('active', statusClass === 'working');
-
-            // Update current task
-            els.currentTask.textContent = status.current_task || '';
-
-            // Update token counts with animation
-            const newSession = status.tokens_session || 0;
-            const newDaily = status.tokens_daily || 0;
-
-            els.tokensSession.textContent = formatNumber(newSession);
-            els.tokensDaily.textContent = formatNumber(newDaily);
-        };
-
-        const updateActivities = (activities) => {
-            if (!activities || activities.length === 0) {
-                els.activityList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📭</div>
-                        <div class="empty-text">No activities yet</div>
+    Object.entries(cols).forEach(([col, items]) => {
+        const container = document.getElementById('col-' + col);
+        const count = document.getElementById('count-' + col);
+        if (container && count) {
+            count.textContent = items.length;
+            container.innerHTML = items.length === 0 
+                ? '<div class="empty-state">No tasks</div>'
+                : items.map(t => `
+                    <div class="task-card" onclick="moveTask('${t.id}', '${t.task_status}')">
+                        <div class="task-card-header">
+                            <span class="task-priority priority-${t.task_priority}">${t.task_priority}</span>
+                        </div>
+                        <div class="task-title">${escapeHtml(t.task_title)}</div>
+                        <div class="task-meta">
+                            <span>⚡ ${formatNum(t.task_tokens || 0)}</span>
+                        </div>
                     </div>
-                `;
-                els.activityCount.textContent = '0';
-                return;
-            }
+                `).join('');
+        }
+    });
 
-            // Check if we have new activities
-            const latestActivity = activities[0];
-            if (latestActivity?.activity_time === lastActivityTime) {
-                return; // No change
-            }
-            lastActivityTime = latestActivity?.activity_time;
-
-            // Build activity list
-            const html = activities.map(activity => `
+    // Activities
+    if (JSON.stringify(activities) !== JSON.stringify(lastActivities)) {
+        lastActivities = activities;
+        const list = document.getElementById('activityList');
+        list.innerHTML = (activities || []).length === 0
+            ? '<div class="empty-state">No activity yet</div>'
+            : activities.map(a => `
                 <div class="activity-item">
-                    <div class="activity-icon ${activity.type || 'info'}">
-                        ${getActivityIcon(activity.type)}
-                    </div>
+                    <div class="activity-icon ${a.type || 'info'}">${icon(a.type)}</div>
                     <div class="activity-content">
-                        <div class="activity-message">${escapeHtml(activity.activity_message || '')}</div>
-                        <div class="activity-time">${formatTime(activity.activity_time)}</div>
+                        <div class="activity-msg">${escapeHtml(a.activity_message)}</div>
+                        <div class="activity-time">${a.activity_time || '--:--'}</div>
                     </div>
                 </div>
             `).join('');
+    }
+};
 
-            els.activityList.innerHTML = html;
-            els.activityCount.textContent = activities.length;
-        };
-
-        const escapeHtml = (text) => {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        };
-
-        const showError = (message) => {
-            els.errorMessage.textContent = message;
-            els.errorState.classList.add('visible');
-            els.connectionStatus.className = 'connection-status disconnected';
-            els.connectionStatus.innerHTML = '<span>●</span><span>Disconnected</span>';
-            isConnected = false;
-        };
-
-        const clearError = () => {
-            els.errorState.classList.remove('visible');
-            if (!isConnected) {
-                els.connectionStatus.className = 'connection-status connected';
-                els.connectionStatus.innerHTML = '<span>●</span><span>Connected</span>';
-                isConnected = true;
-            }
-        };
-
-        // ==================== MAIN FUNCTIONS ====================
-        const refreshData = async () => {
-            try {
-                const [status, activities] = await Promise.all([
-                    fetchAgentStatus(),
-                    fetchActivities()
-                ]);
-
-                updateStatus(status);
-                updateActivities(activities);
-                clearError();
-            } catch (error) {
-                showError(`Connection error: ${error.message}`);
-            }
-        };
-
-        const startAutoRefresh = () => {
-            refreshTimer = setInterval(refreshData, CONFIG.refreshInterval);
-        };
-
-        const stopAutoRefresh = () => {
-            if (refreshTimer) {
-                clearInterval(refreshTimer);
-                refreshTimer = null;
-            }
-        };
-
-        // ==================== LIFECYCLE ====================
-        // Initial load
-        document.addEventListener('DOMContentLoaded', () => {
-            refreshData();
-            startAutoRefresh();
+const moveTask = async (taskId, currentStatus) => {
+    const flow = ['backlog', 'todo', 'in-progress', 'review', 'done'];
+    const idx = flow.indexOf(currentStatus);
+    const next = flow[(idx + 1) % flow.length];
+    
+    try {
+        await fetch(`${CONFIG.supabaseUrl}/agent_tasks?id=eq.${taskId}`, {
+            method: 'PATCH',
+            headers: {
+                'apikey': CONFIG.supabaseKey,
+                'Authorization': `Bearer ${CONFIG.supabaseKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ task_status: next })
         });
+        fetchData();
+    } catch (e) {
+        console.error('Move failed:', e);
+    }
+};
 
-        // Handle visibility change (pause/resume when tab hidden/visible)
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                stopAutoRefresh();
-            } else {
-                refreshData();
-                startAutoRefresh();
-            }
-        });
+const setConnectionStatus = (connected) => {
+    const text = connected ? 'Live' : 'Disconnected';
+    document.getElementById('connectionText').textContent = text;
+    document.getElementById('footerStatus').textContent = connected 
+        ? '● Connected to Supabase' 
+        : '○ Connection error';
+    document.getElementById('footerStatus').style.color = connected ? 'var(--accent)' : 'var(--danger)';
+};
 
-        // Handle online/offline
-        window.addEventListener('online', () => {
-            clearError();
-            refreshData();
-            startAutoRefresh();
-        });
+const formatNum = (n) => {
+    if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+    return n.toString();
+};
 
-        window.addEventListener('offline', () => {
-            showError('You are offline');
-            stopAutoRefresh();
-        });
-    </script>
+const escapeHtml = (text) => {
+    const d = document.createElement('div');
+    d.textContent = text;
+    return d.innerHTML;
+};
+
+const icon = (type) => {
+    if (type === 'success') return '✓';
+    if (type === 'error') return '✕';
+    if (type === 'warning') return '!';
+    return 'i';
+};
+
+// Init
+fetchData();
+setInterval(fetchData, CONFIG.refreshInterval);
+</script>
 </body>
 </html>
