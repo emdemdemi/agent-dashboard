@@ -1,0 +1,15 @@
+{
+  "name": "job-applier",
+  "version": "1.0.0",
+  "description": "Autonomous LinkedIn job application agent",
+  "main": "linkedin-apply.js",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.94.1",
+    "playwright": "^1.58.1"
+  },
+  "scripts": {
+    "setup": "node setup-credentials.js",
+    "apply": "node apply-to-jobs.js",
+    "linkedin": "node linkedin-apply.js"
+  }
+}

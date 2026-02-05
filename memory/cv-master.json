@@ -1,0 +1,53 @@
+{
+  "name": "Emir",
+  "title": "Product Manager / Technical Lead",
+  "yearsExperience": "8+",
+  "location": "Qatar",
+  "summary": "Experienced product leader with technical background, specializing in scaling products, stakeholder management, and cross-functional team leadership. Proven track record in B2B and B2C SaaS.",
+  "contact": {
+    "email": "emdemdemi@gmail.com",
+    "phone": "",
+    "linkedin": "linkedin.com/in/emir",
+    "portfolio": "emdemdemi.github.io"
+  },
+  "experience": [
+    {
+      "title": "Senior Product Manager",
+      "company": "[Current Company - TBD]",
+      "dates": "2022 - Present",
+      "highlights": [
+        "Led product roadmap for platform serving 100K+ users",
+        "Managed cross-functional team of 15 engineers and designers",
+        "Increased revenue by 40% through feature optimization",
+        "Implemented agile methodologies reducing time-to-market by 30%"
+      ]
+    },
+    {
+      "title": "Technical Lead",
+      "company": "[Previous Company - TBD]",
+      "dates": "2019 - 2022",
+      "highlights": [
+        "Architected scalable systems handling 1M+ daily transactions",
+        "Led migration from monolith to microservices",
+        "Reduced infrastructure costs by 25% through optimization",
+        "Mentored team of 8 developers"
+      ]
+    }
+  ],
+  "skills": [
+    "Product Management", "Agile", "Scrum", "Roadmap Planning",
+    "Stakeholder Management", "Data Analysis", "SQL", "Python",
+    "JavaScript", "React", "B2B SaaS", "B2C", "Fintech",
+    "Cross-functional Leadership", "Team Management"
+  ],
+  "education": [
+    {
+      "degree": "[Degree - TBD]",
+      "school": "[University - TBD]",
+      "year": "[Year - TBD]"
+    }
+  ],
+  "keyAchievement": "scaling products from 0 to 100K+ users",
+  "industries": ["SaaS", "Fintech", "E-commerce"],
+  "tools": ["Jira", "Figma", "Analytics", "A/B Testing"]
+}
